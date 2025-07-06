@@ -1,200 +1,174 @@
 # SmartRecruit - AI-Powered Resume Screening Platform
 
-A full-stack AI-powered resume screening platform built with FastAPI (Python) and file-based storage. The system allows users to upload resumes, extract text, analyze content using AI, and generate comprehensive feedback and scoring.
+SmartRecruit is an advanced AI-powered resume screening platform that leverages the Google Gemini API to analyze, score, and rank resumes for efficient and data-driven hiring decisions.
+
+---
 
 ## 🚀 Features
 
-- **Resume Upload**: Support for PDF and DOCX files
-- **AI Analysis**: Integration with Google Gemini API for intelligent resume analysis
-- **Smart Scoring**: Multi-category scoring system (completeness, technical skills, experience, education, presentation)
-- **File-based Storage**: Simple and efficient file storage for resumes, parsed content, and analysis results
-- **RESTful API**: Clean FastAPI endpoints for all operations
-- **Modern Frontend**: Responsive HTML/CSS/JavaScript interface
-- **Real-time Feedback**: Instant analysis and actionable suggestions
+### Core Features
+- AI-powered resume analysis using Google Gemini API
+- Multi-category scoring: completeness, technical skills, experience, education, presentation
+- Instant feedback with actionable suggestions
+- Support for PDF and DOCX resume formats
+
+### Batch Processing
+- Batch upload of up to 20 resumes simultaneously
+- Automated ranking of candidates based on overall scores
+- Comprehensive batch statistics and insights
+- CSV export of ranked results
+- Filtering and search by score ranges and categories
+
+---
 
 ## 🏗️ Architecture
 
+
 ```
-smartrecruit/
+SmartRecruit/
 ├── app/
-│   ├── api/                 # FastAPI route handlers
-│   │   ├── routes_upload.py
-│   │   ├── routes_analysis.py
-│   │   └── routes_resume.py
-│   ├── core/               # Configuration and core modules
-│   │   ├── config.py
-│   │   └── security.py
-│   ├── services/           # Business logic
-│   │   ├── ai_analyzer.py
-│   │   ├── resume_parser.py
-│   │   └── scoring_engine.py
-│   ├── storage/            # Data storage and models
-│   │   ├── data_models.py
-│   │   └── file_manager.py
-│   └── utils/              # Utility functions
-│       ├── file_handler.py
-│       └── validators.py
-├── frontend/               # Static frontend files
-│   ├── css/
-│   ├── js/
-│   └── *.html
-├── model/                  # File storage
-│   └── resume/
-├── main.py                 # FastAPI application entry point
-├── requirements.txt        # Python dependencies
-└── env.example            # Environment variables template
+│   ├── api/                    # FastAPI routes
+│   │   ├── routes_upload.py    # Single and batch upload endpoints
+│   │   ├── routes_batch.py     # Batch analysis and ranking endpoints
+│   │   ├── routes_analysis.py  # Analysis endpoints
+│   │   └── routes_resume.py    # Resume management endpoints
+│   ├── core/                   # Configuration and security
+│   ├── services/               # Business logic
+│   │   ├── ai_analyzer.py      # Google Gemini AI integration
+│   │   ├── resume_parser.py    # PDF/DOCX parsing
+│   │   ├── scoring_engine.py   # Resume scoring system
+│   │   └── ranking_engine.py   # Candidate ranking system
+│   ├── storage/                # Data storage
+│   │   ├── data_models.py      # Pydantic models
+│   │   └── file_manager.py     # File-based storage
+│   └── utils/                  # Utilities
+├── frontend/                   # Web interface
+├── data/                       # File storage
+└── main.py                     # FastAPI application
 ```
 
-## 🛠️ Setup Instructions
+## 🛠️ Installation
 
 ### Prerequisites
-
 - Python 3.8+
 - Google Gemini API key
 
-### Quick Start
-
+### Setup
+1. Clone the repository:
 ```bash
-# Clone the repository
 git clone <repository-url>
 cd smartrecruit
-
-# Run the startup script (creates venv, installs deps, starts server)
-./start.sh
 ```
 
-### Manual Setup
-
+2. Create virtual environment:
 ```bash
-# 1. Create virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-# 2. Install dependencies
+3. Install dependencies:
+```bash
 pip install -r requirements.txt
+```
 
-# 3. Configure environment
+4. Set up environment variables:
+```bash
 cp env.example .env
-# Edit .env with your API keys
+# Edit .env and add your Google Gemini API key
+```
 
-# 4. Run the application
+5. Run the application:
+```bash
 python main.py
 ```
 
-Required environment variables:
-```env
-# AI API Keys
-GEMINI_API_KEY=your_gemini_api_key_here
+The application will be available at `http://localhost:8000`
 
-# Security
-SECRET_KEY=your_secret_key_here_make_it_long_and_random
+## 📊 API Endpoints
 
-# Server Configuration
-HOST=0.0.0.0
-PORT=8000
-DEBUG=True
-```
+### Single Resume Upload
+- `POST /api/v1/upload` - Upload a single resume
+- `GET /api/v1/resumes` - Get all uploaded resumes
+- `GET /api/v1/resumes/{resume_id}` - Get specific resume details
+- `DELETE /api/v1/resumes/{resume_id}` - Delete a resume
 
-The application will be available at:
-- **API**: http://localhost:8000
-- **Frontend**: http://localhost:8000/static/index.html
-- **API Documentation**: http://localhost:8000/docs
 
-## 📚 API Endpoints
+## 🎯 Scoring System
 
-### Resume Management
-- `POST /api/v1/upload` - Upload a resume file
-- `GET /api/v1/resumes` - Get all resumes
-- `GET /api/v1/resumes/{resume_id}` - Get specific resume
-- `DELETE /api/v1/resumes/{resume_id}` - Delete resume
+The platform uses a comprehensive scoring system with the following categories:
 
-### Analysis
-- `POST /api/v1/analyze/{resume_id}` - Analyze resume with AI
-- `GET /api/v1/analysis/{analysis_id}` - Get analysis result
-- `GET /api/v1/resumes/{resume_id}/analysis` - Get resume analyses
+### Scoring Categories
+1. **Completeness (20%)**: Contact info, sections, overall completeness
+2. **Technical Skills (25%)**: Quality and relevance of technical skills
+3. **Experience (25%)**: Work experience quality and duration
+4. **Education (15%)**: Educational background and qualifications
+5. **Presentation (15%)**: Formatting, structure, and readability
 
-## 🔧 Configuration
+### Scoring Algorithm
+- Base score of 50 points for each category
+- Additional points based on content analysis
+- AI analysis integration for enhanced accuracy
+- Weighted average calculation for overall score
 
-### File Upload Settings
-- **Max file size**: 10MB (configurable in `.env`)
-- **Supported formats**: PDF, DOCX, DOC
-- **Storage location**: `model/resume/uploads/`
+## 📈 Ranking System
 
-### AI Analysis
-- **Primary provider**: Google Gemini
-- **Fallback provider**: DeepSeek (configurable)
-- **Analysis categories**: Technical skills, experience, education, presentation
+### Ranking Features
+- **Score-based Ranking**: Candidates ranked by overall score (descending)
+- **Category Analysis**: Detailed breakdown of category scores
+- **Statistical Insights**: Mean, median, percentiles, and distributions
+- **Top Performers**: Automatic identification of top candidates
+- **Filtering Options**: Filter by score ranges and categories
 
-### Scoring System
-- **Overall score**: Weighted average of all categories
-- **Category weights**:
-  - Completeness: 20%
-  - Technical Skills: 25%
-  - Experience: 30%
-  - Education: 15%
-  - Presentation: 10%
+### HR Statistics
+- Total candidates processed
+- Average, median, and percentile scores
+- Score distribution across ranges
+- Category-wise averages
+- Top performer highlights
 
 ## 🎨 Frontend Features
 
-- **Responsive Design**: Works on desktop and mobile
-- **Real-time Upload**: Drag-and-drop file upload
-- **Progress Tracking**: Upload and analysis progress indicators
-- **Results Dashboard**: Comprehensive analysis display
-- **Statistics**: Platform usage statistics
+### Candidate Resume Upload
+- Drag-and-drop file upload
+- Real-time analysis progress
+- Detailed scoring breakdown
+- AI feedback and suggestions
 
-## 🔒 Security Features
+### HR Upload Interface
+- Multiple file selection
+- Batch processing status
+- Ranked candidate display
+- Interactive statistics dashboard
+- CSV download functionality
 
-- **File Validation**: Type and size validation
-- **CORS Configuration**: Configurable cross-origin requests
-- **Error Handling**: Comprehensive error management
-- **Input Sanitization**: Protection against malicious inputs
+## 🔧 Configuration
 
-## 🚀 Deployment
+### Environment Variables
+```env
+# AI APIs
+GEMINI_API_KEY=your_gemini_api_key_here
 
-### Production Considerations
-1. Configure proper CORS origins
-2. Set up reverse proxy (nginx)
-3. Enable HTTPS
-4. Configure logging and monitoring
-5. Set up file backup strategy
+# File handling
+MAX_FILE_SIZE=10485760  # 10MB
+ALLOWED_FILE_TYPES=pdf,docx,doc
 
-### Simple Deployment
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Set environment variables
-cp env.example .env
-# Edit .env with your configuration
-
-# Run the application
-python main.py
+# Server configuration
+HOST=0.0.0.0
+PORT=8000
+DEBUG=true
 ```
 
-## 🤝 Contributing
+### File Storage Structure
+```
+data/
+├── resumes/          # Uploaded resume files
+├── analyses/         # AI analysis results
+└── metadata/         # Batch results and rankings
+```
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the API documentation at `/docs`
-- Review the logs for debugging information
-
-## 🔄 Changelog
-
-### v1.0.0
-- Initial release
-- FastAPI backend with file-based storage
-- AI-powered resume analysis
-- Modern frontend interface
-- Comprehensive scoring system
+## 🔒 Security Features
+- File type validation
+- File size limits
+- Secure file storage
+- Input sanitization
+- CORS configuration

@@ -188,27 +188,27 @@ class ResumeUploader {
         resultDiv.className = 'analysis-results';
         resultDiv.innerHTML = `
             <div class="score-overview">
-                <h4>Overall Score: ${analysis.overall_score}/10</h4>
+                <h4>Overall Score: ${analysis.overall_score}/100</h4>
                 <div class="category-scores">
                     <div class="score-item">
                         <span>Completeness:</span>
-                        <span>${analysis.category_scores.completeness}/10</span>
+                        <span>${analysis.category_scores.completeness}/100</span>
                     </div>
                     <div class="score-item">
                         <span>Technical Skills:</span>
-                        <span>${analysis.category_scores.technical_skills}/10</span>
+                        <span>${analysis.category_scores.technical_skills}/100</span>
                     </div>
                     <div class="score-item">
                         <span>Experience:</span>
-                        <span>${analysis.category_scores.experience}/10</span>
+                        <span>${analysis.category_scores.experience}/100</span>
                     </div>
                     <div class="score-item">
                         <span>Education:</span>
-                        <span>${analysis.category_scores.education}/10</span>
+                        <span>${analysis.category_scores.education}/100</span>
                     </div>
                     <div class="score-item">
                         <span>Presentation:</span>
-                        <span>${analysis.category_scores.presentation}/10</span>
+                        <span>${analysis.category_scores.presentation}/100</span>
                     </div>
                 </div>
             </div>

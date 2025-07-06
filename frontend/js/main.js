@@ -21,6 +21,7 @@ class MainPage {
 
     async loadStatistics() {
         try {
+            // Use relative path instead of absolute URL
             const response = await fetch('/api/v1/resumes');
             if (!response.ok) {
                 throw new Error('Failed to load statistics');
@@ -67,9 +68,24 @@ class MainPage {
 
     showError(message) {
         console.error(message);
-        // You can add a more sophisticated error display here
+
     }
 }
+
+// Fixed upload function to use relative path
+const uploadResume = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    // Use relative path instead of absolute URL
+    const response = await fetch("/api/v1/upload", {
+        method: "POST",
+        body: formData,
+    });
+
+    const data = await response.json();
+    console.log("Upload result:", data);
+};
 
 // Initialize main page when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {

@@ -7,7 +7,7 @@ from app.storage.file_manager import file_manager
 from app.storage.data_models import AnalysisResult
 from app.services.resume_parser import parse_resume
 from app.services.ai_analyzer import analyze_resume
-from app.services.scoring_engine import calculate_scores
+from app.services.scoring_engine import scoring_engine
 
 router = APIRouter()
 
@@ -32,18 +32,19 @@ async def analyze_resume_endpoint(resume_id: str, ai_provider: str = "gemini"):
         
         # Analyze with AI
         ai_analysis = await analyze_resume(parsed_content["extracted_text"], ai_provider)
+        ai_analysis.resume_id = resume_id
         
-        # Calculate scores
-        scores = calculate_scores(parsed_content, ai_analysis)
+        # Calculate scores using the new scoring engine
+        scoring_result = scoring_engine.score_resume(parsed_content["parsed_data"], ai_analysis)
         
         # Create analysis result
         analysis = AnalysisResult(
             resume_id=resume_id,
             ai_provider=ai_provider,
-            overall_score=scores["overall_score"],
-            category_scores=scores["category_scores"],
-            feedback=ai_analysis.get("feedback", ""),
-            suggestions=ai_analysis.get("suggestions", [])
+            overall_score=scoring_result["overall_score"],
+            category_scores=scoring_result["category_scores"],
+            feedback=ai_analysis.feedback,
+            suggestions=ai_analysis.suggestions
         )
         
         # Save analysis

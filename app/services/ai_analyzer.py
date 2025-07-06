@@ -1,13 +1,14 @@
 import google.generativeai as genai
+import re
 from typing import Dict, Any
 from app.core.config import settings
+from app.storage.data_models import AnalysisResult
 
 # Configure Gemini
 if settings.gemini_api_key:
     genai.configure(api_key=settings.gemini_api_key)
 
-async def analyze_resume(resume_text: str, ai_provider: str = "gemini") -> Dict[str, Any]:
-    """Analyze resume content using AI"""
+async def analyze_resume(resume_text: str, ai_provider: str = "gemini") -> AnalysisResult:
     try:
         if ai_provider == "gemini":
             return await analyze_with_gemini(resume_text)
@@ -17,76 +18,183 @@ async def analyze_resume(resume_text: str, ai_provider: str = "gemini") -> Dict[
             raise ValueError(f"Unsupported AI provider: {ai_provider}")
     
     except Exception as e:
-        raise Exception(f"Error analyzing resume: {str(e)}")
+        # Return default analysis if AI analysis fails
+        return AnalysisResult(
+            resume_id="",
+            ai_provider=ai_provider,
+            overall_score=50.0,
+            category_scores={
+                "completeness": 50.0,
+                "technical_skills": 50.0,
+                "experience": 50.0,
+                "education": 50.0,
+                "presentation": 50.0
+            },
+            feedback=f"AI analysis failed: {str(e)}",
+            suggestions=["Please check the resume format and content"]
+        )
 
-async def analyze_with_gemini(resume_text: str) -> Dict[str, Any]:
-    """Analyze resume using Google Gemini"""
+async def analyze_with_gemini(resume_text: str) -> AnalysisResult:
     try:
-        model = genai.GenerativeModel('gemini-pro')
-        
+        # Use correct Gemini 2.0 model
+        model = genai.GenerativeModel('gemini-2.0-flash')
+
         prompt = f"""
-        Analyze the following resume and provide detailed feedback:
+        Analyze the following resume and provide a structured assessment with scores.
 
         Resume Content:
         {resume_text}
 
-        Please provide:
-        1. Overall assessment and rating (1-10)
-        2. Strengths and weaknesses
-        3. Specific suggestions for improvement
-        4. Technical skills assessment
-        5. Experience relevance
-        6. Educational background evaluation
-        7. Overall presentation and formatting feedback
+        Please provide your analysis in the following JSON format:
+        {{
+            "overall_score": <score from 0-100>,
+            "category_scores": {{
+                "completeness": <score from 0-100>,
+                "technical_skills": <score from 0-100>,
+                "experience": <score from 0-100>,
+                "education": <score from 0-100>,
+                "presentation": <score from 0-100>
+            }},
+            "feedback": "<detailed feedback about the resume>",
+            "suggestions": ["<suggestion 1>", "<suggestion 2>", "<suggestion 3>"]
+        }}
 
-        Format your response as a structured analysis with clear sections.
+        Scoring criteria:
+        - Completeness: How complete is the resume (contact info, sections, etc.)
+        - Technical Skills: Quality and relevance of technical skills
+        - Experience: Quality and relevance of work experience
+        - Education: Quality and relevance of education background
+        - Presentation: Overall formatting, structure, and readability
+
+        Provide only the JSON response, no additional text.
         """
-        
+
+        # Make Gemini call (sync model works fine even in async function)
         response = model.generate_content(prompt)
-        
-        # Parse the response into structured format
-        analysis = parse_ai_response(response.text)
-        
-        return analysis
-    
+
+        import json
+        analysis_data = json.loads(response.text)
+
+        return AnalysisResult(
+            resume_id="",
+            ai_provider="gemini",
+            overall_score=float(analysis_data.get("overall_score", 50.0)),
+            category_scores={
+                "completeness": float(analysis_data.get("category_scores", {}).get("completeness", 50.0)),
+                "technical_skills": float(analysis_data.get("category_scores", {}).get("technical_skills", 50.0)),
+                "experience": float(analysis_data.get("category_scores", {}).get("experience", 50.0)),
+                "education": float(analysis_data.get("category_scores", {}).get("education", 50.0)),
+                "presentation": float(analysis_data.get("category_scores", {}).get("presentation", 50.0))
+            },
+            feedback=analysis_data.get("feedback", "No feedback provided"),
+            suggestions=analysis_data.get("suggestions", [])
+        )
+
+    except json.JSONDecodeError:
+        return parse_ai_response_fallback(response.text)
+
     except Exception as e:
         raise Exception(f"Error with Gemini API: {str(e)}")
 
-async def analyze_with_deepseek(resume_text: str) -> Dict[str, Any]:
+
+async def analyze_with_deepseek(resume_text: str) -> AnalysisResult:
     """Analyze resume using DeepSeek API"""
     # Implementation for DeepSeek API
     # This would require the DeepSeek API client
     
-    return {
-        "feedback": "DeepSeek analysis not implemented yet",
-        "suggestions": ["Implement DeepSeek API integration"],
-        "technical_skills": [],
-        "experience_rating": 5.0,
-        "education_rating": 5.0
-    }
+    return AnalysisResult(
+        resume_id="",
+        ai_provider="deepseek",
+        overall_score=50.0,
+        category_scores={
+            "completeness": 50.0,
+            "technical_skills": 50.0,
+            "experience": 50.0,
+            "education": 50.0,
+            "presentation": 50.0
+        },
+        feedback="DeepSeek analysis not implemented yet",
+        suggestions=["Implement DeepSeek API integration"]
+    )
 
-def parse_ai_response(response_text: str) -> Dict[str, Any]:
-    """Parse AI response into structured format"""
+def parse_ai_response_fallback(response_text: str) -> AnalysisResult:
+    """Fallback parser for AI response when JSON parsing fails"""
     try:
-        # This is a simplified parser - you might want to use more sophisticated parsing
-        analysis = {
-            "feedback": response_text,
-            "suggestions": extract_suggestions(response_text),
-            "technical_skills": extract_technical_skills(response_text),
-            "experience_rating": extract_rating(response_text, "experience"),
-            "education_rating": extract_rating(response_text, "education")
+        # Extract scores using regex patterns
+        import re
+        
+        # Look for overall score
+        overall_score = 50.0
+        overall_patterns = [
+            r'overall.*?(\d+)',
+            r'score.*?(\d+)',
+            r'rating.*?(\d+)'
+        ]
+        
+        for pattern in overall_patterns:
+            matches = re.findall(pattern, response_text, re.IGNORECASE)
+            if matches:
+                try:
+                    overall_score = float(matches[0])
+                    break
+                except:
+                    continue
+        
+        # Extract category scores
+        category_scores = {
+            "completeness": 50.0,
+            "technical_skills": 50.0,
+            "experience": 50.0,
+            "education": 50.0,
+            "presentation": 50.0
         }
         
-        return analysis
+        # Look for category-specific scores
+        category_patterns = {
+            "completeness": [r'completeness.*?(\d+)', r'complete.*?(\d+)'],
+            "technical_skills": [r'technical.*?(\d+)', r'skills.*?(\d+)'],
+            "experience": [r'experience.*?(\d+)', r'work.*?(\d+)'],
+            "education": [r'education.*?(\d+)', r'degree.*?(\d+)'],
+            "presentation": [r'presentation.*?(\d+)', r'format.*?(\d+)']
+        }
+        
+        for category, patterns in category_patterns.items():
+            for pattern in patterns:
+                matches = re.findall(pattern, response_text, re.IGNORECASE)
+                if matches:
+                    try:
+                        category_scores[category] = float(matches[0])
+                        break
+                    except:
+                        continue
+        
+        # Extract suggestions
+        suggestions = extract_suggestions(response_text)
+        
+        return AnalysisResult(
+            resume_id="",
+            ai_provider="gemini",
+            overall_score=overall_score,
+            category_scores=category_scores,
+            feedback=response_text[:500] + "..." if len(response_text) > 500 else response_text,
+            suggestions=suggestions
+        )
     
     except Exception as e:
-        return {
-            "feedback": response_text,
-            "suggestions": [],
-            "technical_skills": [],
-            "experience_rating": 5.0,
-            "education_rating": 5.0
-        }
+        return AnalysisResult(
+            resume_id="",
+            ai_provider="gemini",
+            overall_score=50.0,
+            category_scores={
+                "completeness": 50.0,
+                "technical_skills": 50.0,
+                "experience": 50.0,
+                "education": 50.0,
+                "presentation": 50.0
+            },
+            feedback=f"Failed to parse AI response: {str(e)}",
+            suggestions=["Please review the resume manually"]
+        )
 
 def extract_suggestions(text: str) -> list:
     """Extract suggestions from AI response"""
@@ -95,8 +203,13 @@ def extract_suggestions(text: str) -> list:
     # Look for numbered suggestions or bullet points
     lines = text.split('\n')
     for line in lines:
-        if any(indicator in line.lower() for indicator in ['suggest', 'improve', 'recommend', 'should']):
-            suggestions.append(line.strip())
+        line = line.strip()
+        if any(indicator in line.lower() for indicator in ['suggest', 'improve', 'recommend', 'should', 'consider']):
+            # Clean up the suggestion
+            suggestion = re.sub(r'^\d+\.\s*', '', line)  # Remove numbering
+            suggestion = re.sub(r'^[-•*]\s*', '', suggestion)  # Remove bullets
+            if suggestion and len(suggestion) > 10:  # Only add meaningful suggestions
+                suggestions.append(suggestion)
     
     return suggestions[:5]  # Limit to top 5 suggestions
 
