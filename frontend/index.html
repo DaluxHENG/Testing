@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered resume screening platform that analyzes resumes and provides detailed feedback">
+    <meta name="keywords" content="resume analysis, AI screening, job applications, career advice">
+    <title>SmartRecruit - AI-Powered Resume Screening</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header role="banner">
+        <nav class="navbar" role="navigation" aria-label="Main navigation">
+            <div class="nav-container">
+                <h1 class="logo">
+                    <a href="index.html" aria-label="SmartRecruit Home">SmartRecruit</a>
+                </h1>
+                <ul class="nav-menu" role="menubar">
+                    <li role="none"><a href="index.html" class="nav-link active" role="menuitem" aria-current="page">Home</a></li>
+                    <li role="none"><a href="upload.html" class="nav-link" role="menuitem">Upload Resume</a></li>
+                    <li role="none"><a href="results.html" class="nav-link" role="menuitem">Results</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main">
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="hero-content">
+                <h2 id="hero-title">AI-Powered Resume Screening Platform</h2>
+                <p>Upload your resume and get instant AI-powered analysis, scoring, and feedback to improve your job applications.</p>
+                <div class="hero-buttons">
+                    <a href="upload.html" class="btn btn-primary" role="button">Upload Resume</a>
+                    <a href="results.html" class="btn btn-secondary" role="button">View Results</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="features" aria-labelledby="features-title">
+            <div class="container">
+                <h3 id="features-title">Features</h3>
+                <div class="features-grid">
+                    <article class="feature-card">
+                        <h4>AI Analysis</h4>
+                        <p>Advanced AI analyzes your resume content and provides detailed feedback</p>
+                    </article>
+                    <article class="feature-card">
+                        <h4>Smart Scoring</h4>
+                        <p>Get comprehensive scores across multiple categories</p>
+                    </article>
+                    <article class="feature-card">
+                        <h4>Instant Feedback</h4>
+                        <p>Receive actionable suggestions to improve your resume</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats" aria-labelledby="stats-title">
+            <div class="container">
+                <h3 id="stats-title">Platform Statistics</h3>
+                <div class="stats-grid" id="stats-container" role="region" aria-label="Platform statistics">
+                    <article class="stat-card">
+                        <h4 id="total-resumes" aria-label="Total resumes uploaded">0</h4>
+                        <p>Total Resumes</p>
+                    </article>
+                    <article class="stat-card">
+                        <h4 id="analyzed-resumes" aria-label="Resumes analyzed">0</h4>
+                        <p>Analyzed Resumes</p>
+                    </article>
+                    <article class="stat-card">
+                        <h4 id="analysis-rate" aria-label="Analysis completion rate">0%</h4>
+                        <p>Analysis Rate</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer role="contentinfo">
+        <div class="container">
+            <p>&copy; 2024 SmartRecruit. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
