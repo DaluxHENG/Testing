@@ -53,7 +53,7 @@ async def analyze_with_gemini(resume_text: str) -> AnalysisResult:
                 "technical_skills": <score from 0-100>,
                 "experience": <score from 0-100>,
                 "education": <score from 0-100>,
-                "presentation": <score from 0-100>
+                "soft": <score from 0-100>
             }},
             "feedback": "<detailed feedback about the resume>",
             "suggestions": ["<suggestion 1>", "<suggestion 2>", "<suggestion 3>"]
@@ -120,7 +120,6 @@ async def analyze_with_deepseek(resume_text: str) -> AnalysisResult:
 def parse_ai_response_fallback(response_text: str) -> AnalysisResult:
     """Fallback parser for AI response when JSON parsing fails"""
     try:
-        # Extract scores using regex patterns
         import re
         
         # Look for overall score

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from app.api import routes_upload, routes_analysis, routes_resume, routes_batch
 from app.core.config import settings
 from app.storage.file_manager import ensure_directories
@@ -37,9 +37,18 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 async def serve_index():
     return FileResponse(f"{STATIC_DIR}/index.html")
 
+@app.get("/index.html")
+async def redirect_index():
+    return RedirectResponse(url="/")
+
 @app.get("/upload.html", response_class=HTMLResponse)
 async def serve_upload():
     return FileResponse(f"{STATIC_DIR}/upload.html")
+
+@app.get("/upload.html", response_class=HTMLResponse)
+async def get_upload():
+    return FileResponse(f"{STATIC_DIR}/upload.html")
+
 
 @app.get("/results.html", response_class=HTMLResponse)
 async def serve_results():

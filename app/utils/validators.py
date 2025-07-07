@@ -21,12 +21,9 @@ def validate_file(file: UploadFile) -> bool:
             status_code=400,
             detail=f"File type not allowed. Allowed types: {', '.join(settings.allowed_file_types_list)}"
         )
-    
     return True
 
 def validate_resume_id(resume_id: str) -> bool:
-    """Validate resume ID format"""
     if not resume_id or len(resume_id) < 10:
         raise HTTPException(status_code=400, detail="Invalid resume ID")
-    
     return True
