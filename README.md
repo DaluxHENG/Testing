@@ -103,7 +103,7 @@ The platform uses a comprehensive scoring system with the following categories:
 5. **Presentation (15%)**: Formatting, structure, and readability
 
 ### Scoring Algorithm
-- Base score of 50 points for each category
+- Base score of 100 points for each category
 - Additional points based on content analysis
 - AI analysis integration for enhanced accuracy
 - Weighted average calculation for overall score
